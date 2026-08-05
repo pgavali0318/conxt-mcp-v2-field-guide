@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Conxt Field Guide — MCP Python SDK v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAFAF8; --card:#FFFFFF; --cream:#F6F4EE;
+    --ink:#24211B; --ink2:#3C3A34; --muted:#6E6B63; --faint:#9A968C;
+    --line:#E7E4DC; --line2:#EFEDE7;
+    --teal:#0D5C63; --teal-deep:#0A474D; --teal-soft:#EAF3F3; --teal-line:#CBE0E0;
+    --clay:#B5521F; --clay-soft:#FBF0E8; --clay-line:#EAD4C4;
+    --serif:"Instrument Serif",Georgia,serif;
+    --mono:"JetBrains Mono",ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{font-family:"DM Sans",-apple-system,sans-serif; color:var(--ink); background:var(--bg); line-height:1.6; -webkit-font-smoothing:antialiased;}
+  .page{max-width:860px; margin:0 auto; padding:56px 56px 64px;}
+  em,.serif{font-family:var(--serif); font-style:italic; font-weight:400; color:var(--teal);}
+
+  .brandbar{display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:16px; margin-bottom:40px;}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:-.01em;}
+  .brand .mark{width:22px; height:22px; border-radius:6px; background:var(--teal); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;}
+  .tagpill{font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--teal); background:var(--teal-soft); border:1px solid var(--teal-line); border-radius:100px; padding:4px 12px;}
+
+  .eyebrow{font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--clay); margin:0 0 12px;}
+  h1{font-size:38px; font-weight:700; letter-spacing:-.03em; line-height:1.08; margin:0 0 12px;}
+  .lede{font-size:16.5px; color:var(--muted); margin:0 0 8px; max-width:640px;}
+  .verify-note{font-size:12.5px; color:var(--faint); font-style:italic; margin:6px 0 0;}
+
+  h2{font-size:24px; font-weight:700; letter-spacing:-.02em; margin:48px 0 6px;}
+  h2 .n{color:var(--faint); font-weight:600; margin-right:8px;}
+  h3{font-size:15px; font-weight:700; margin:26px 0 8px;}
+  p{margin:0 0 14px;}
+  .sec-intro{color:var(--muted); font-size:15px; margin:0 0 18px;}
+
+  .callout{background:var(--teal-soft); border:1px solid var(--teal-line); border-left:3px solid var(--teal); border-radius:12px; padding:18px 20px; margin:22px 0;}
+  .callout .h{font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--teal-deep); margin:0 0 8px;}
+  .callout p{margin:0; font-size:14px; color:var(--ink2);}
+  .callout.clay{background:var(--clay-soft); border-color:var(--clay-line); border-left-color:var(--clay);}
+  .callout.clay .h{color:var(--clay);}
+  .callout.verified{background:#EEF6F1; border-color:#C8E4D5; border-left-color:#2FA875;}
+  .callout.verified .h{color:#1E7A54;}
+
+  table{width:100%; border-collapse:collapse; margin:18px 0 22px; font-size:13.5px;}
+  th{text-align:left; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--faint); border-bottom:1px solid var(--line); padding:0 14px 9px 0; vertical-align:bottom;}
+  td{padding:11px 14px 11px 0; border-bottom:1px solid var(--line2); color:var(--ink2); vertical-align:top;}
+  td:first-child{font-weight:600; color:var(--ink); white-space:nowrap;}
+  code{font-family:var(--mono); font-size:.86em; color:var(--teal-deep); background:var(--teal-soft); border-radius:4px; padding:1px 5px;}
+  .vtick{color:#2FA875; font-weight:700;}
+
+  pre{background:var(--cream); border:1px solid var(--line); border-radius:12px; padding:16px 18px; overflow-x:auto; margin:14px 0; font-family:var(--mono); font-size:12.5px; line-height:1.65; color:var(--ink2);}
+  pre .c{color:var(--faint);}
+  pre .k{color:var(--clay);}
+  pre .s{color:var(--teal);}
+  .codelabel{font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--faint); margin:16px 0 -6px;}
+
+  ol.proto{counter-reset:step; list-style:none; padding:0; margin:8px 0 0;}
+  ol.proto li{counter-increment:step; position:relative; padding:0 0 16px 40px; margin:0;}
+  ol.proto li::before{content:counter(step); position:absolute; left:0; top:-1px; width:26px; height:26px; border-radius:8px; background:var(--teal-soft); color:var(--teal); border:1px solid var(--teal-line); font-size:12.5px; font-weight:700; display:flex; align-items:center; justify-content:center;}
+  ol.proto li b{display:block; font-size:14.5px; margin-bottom:2px;}
+  ol.proto li span{font-size:13.5px; color:var(--muted);}
+
+  ul.checks{list-style:none; padding:0; margin:8px 0;}
+  ul.checks li{position:relative; padding:6px 0 6px 26px; font-size:13.5px; color:var(--ink2); border-bottom:1px solid var(--line2);}
+  ul.checks li::before{content:"\2610"; position:absolute; left:0; top:5px; color:var(--teal); font-size:15px;}
+
+  .layers{display:flex; flex-direction:column; gap:0; margin:16px 0 22px; border:1px solid var(--line); border-radius:14px; overflow:hidden;}
+  .layers .row{display:grid; grid-template-columns:200px 1fr; gap:16px; padding:14px 18px; border-bottom:1px solid var(--line2); align-items:baseline;}
+  .layers .row:last-child{border-bottom:none;}
+  .layers .row .l{font-weight:700; font-size:13.5px; color:var(--teal);}
+  .layers .row .d{font-size:13px; color:var(--muted);}
+
+  .refs a{color:var(--teal); text-decoration:none; border-bottom:1px solid var(--teal-line);}
+  .scope{font-size:12px; color:var(--faint); font-style:italic; border-top:1px solid var(--line); margin-top:36px; padding-top:16px;}
+
+  @media (max-width:680px){ .page{padding:32px 22px;} h1{font-size:28px;} .layers .row{grid-template-columns:1fr; gap:4px;} td:first-child{white-space:normal;} }
+  @media print{
+    body{background:#fff;}
+    .page{padding:26px 30px; max-width:none;}
+    .callout,pre,table,.layers,ol.proto li{break-inside:avoid;}
+    h2{break-after:avoid;}
+    .layers{margin:10px 0 14px;}
+    .layers .row{padding:9px 14px;}
+    .callout{padding:14px 17px; margin:16px 0;}
+    ul.checks li{padding-top:4px; padding-bottom:4px;}
+    .scope{margin-top:10px; padding-top:6px; font-size:9px; line-height:1.25;}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="brandbar">
+    <div class="brand"><span class="mark">c</span> Conxt <span style="color:var(--faint);font-weight:500;">Field Guide</span></div>
+    <span class="tagpill">v1.0 · August 2026 · verify vs. official SDK</span>
+  </div>
+
+  <p class="eyebrow">MCP Python SDK v2 · Migration &amp; interoperability</p>
+  <h1>Upgrading your MCP server to v2 — <span class="serif">without breaking the agents.</span></h1>
+  <p class="lede">A practical migration guide for teams running production MCP servers. The v2 SDK supports the 2026-07-28 spec — it is a <b>major rework, not a safe dependency bump.</b></p>
+  <p style="font-size:14px; color:var(--muted); margin:0 0 8px; max-width:660px;"><b style="color:var(--ink2);">Scope:</b> written for teams running <b>Python</b> MCP servers on <b>Streamable HTTP</b>, especially mounted behind FastAPI. The migration protocol and interoperability test card apply to any language; the code specifics are Python + FastAPI. <code>stdio</code> / local servers don't touch the transport half.</p>
+  <p class="verify-note">Technical specifics below were reviewed against the official MCP Python SDK v2 migration guide and API reference. Confirm against the current SDK before your own production rollout.</p>
+
+  <div class="callout">
+    <p class="h">The short version</p>
+    <p>Keep production pinned to a working v1 release while you port and test v2 on a separate branch and endpoint. Installing <code>mcp&gt;=2</code> over v1 code will often <em>install</em> cleanly and then fail at runtime — on imports, constructor arguments, routes, startup, or identity handling. Migrate deliberately; canary; keep a v1 rollback until the observation window closes.</p>
+  </div>
+
+  <h2><span class="n">1</span>What changed in SDK v2</h2>
+  <p class="sec-intro">The high-level server model is still recognizable — but construction, transport, context, and lifecycle APIs moved. These are the changes most likely to affect a FastAPI-mounted MCP server. <span class="vtick">✓</span> marks items documented in the official v2 migration guide or API reference.</p>
+
+  <table>
+    <thead><tr><th>v1 pattern</th><th>v2 migration</th><th style="text-align:right;">Official docs</th></tr></thead>
+    <tbody>
+      <tr><td>FastMCP</td><td>Renamed to <code>MCPServer</code>.</td><td style="text-align:right;"><span class="vtick">✓</span></td></tr>
+      <tr><td>mcp.server.fastmcp</td><td>Module removed. Import from <code>mcp.server.mcpserver</code>.</td><td style="text-align:right;"><span class="vtick">✓</span></td></tr>
+      <tr><td>Transport in constructor</td><td>Pass <code>host</code>, <code>streamable_http_path</code>, <code>stateless_http</code>, <code>json_response</code> to <code>streamable_http_app()</code> (or <code>run()</code>).</td><td style="text-align:right;"><span class="vtick">✓</span></td></tr>
+      <tr><td>Reading HTTP headers</td><td>Use <code>ctx.headers</code> for transport-provided request headers. It is <code>None</code> on transports such as stdio. <code>ctx.request_context</code> still exists for request metadata and lifespan context.</td><td style="text-align:right;"><span class="vtick">✓</span></td></tr>
+      <tr><td>Implicit server version</td><td>Pass an explicit <code>version=</code>.</td><td style="text-align:right;"><span class="vtick">✓</span></td></tr>
+      <tr><td>Session-manager access</td><td>Public <code>mcp.session_manager</code> property — <b>created lazily</b>, only after <code>streamable_http_app()</code> is called.</td><td style="text-align:right;"><span class="vtick">✓</span></td></tr>
+      <tr><td>Per-request lifespan</td><td>Streamable-HTTP lifespan is entered <b>once</b> at session-manager start, not per request.</td><td style="text-align:right;">—</td></tr>
+      <tr><td>Auto <code>.env</code> loading</td><td>Load configuration in the application itself.</td><td style="text-align:right;">—</td></tr>
+    </tbody>
+  </table>
+
+  <p><b>What stays familiar:</b> stateless Streamable HTTP is still supported and carries no state between requests; tools still use <code>@mcp.tool()</code>; a param annotated <code>ctx: Context</code> is still how a tool receives context. Authentication concepts remain, but your middleware and identity propagation still need deliberate testing.</p>
+
+  <p class="codelabel">Representative port — FastAPI-mounted server</p>
+  <pre><span class="c"># Before (v1)</span>
+<span class="k">from</span> mcp.server.fastmcp <span class="k">import</span> FastMCP, Context
+mcp = FastMCP(<span class="s">"Conxt"</span>, stateless_http=<span class="k">True</span>, json_response=<span class="k">True</span>,
+              streamable_http_path=<span class="s">"/"</span>)
+app.mount(<span class="s">"/mcp"</span>, mcp.streamable_http_app())
+
+<span class="c"># After (v2)</span>
+<span class="k">from</span> mcp.server.mcpserver <span class="k">import</span> MCPServer, Context
+mcp = MCPServer(<span class="s">"Conxt"</span>, version=<span class="s">"1.2.0"</span>)
+mcp_app = mcp.streamable_http_app(
+    streamable_http_path=<span class="s">"/"</span>,   <span class="c"># REQUIRED when mounting at /mcp:</span>
+    stateless_http=<span class="k">True</span>,        <span class="c"># v2 default is "/mcp" -&gt; would give /mcp/mcp</span>
+    json_response=<span class="k">True</span>,
+)
+app.mount(<span class="s">"/mcp"</span>, mcp_app)</pre>
+
+  <div class="callout verified">
+    <p class="h">FastAPI-mounted details to test explicitly</p>
+    <p>Four details documented by the official v2 guidance can bite a FastAPI-mounted server: <b>(1)</b> <code>streamable_http_app()</code>’s default path is <code>/mcp</code> — mount at <code>/mcp</code> and you get <code>/mcp/mcp</code> unless you pass <code>streamable_http_path="/"</code>. <b>(2)</b> Read transport-provided HTTP headers through <code>ctx.headers</code>; do not depend on the transport-specific object behind <code>ctx.request_context.request</code>. <b>(3)</b> <code>mcp.session_manager</code> raises <code>RuntimeError</code> if touched before <code>streamable_http_app()</code> runs — build the mounted app at module level so the manager exists by the time the host lifespan starts. <b>(4)</b> The Streamable-HTTP request-body limit defaults to <b>4&nbsp;MiB</b> (<code>4194304</code>).</p>
+  </div>
+
+  <div class="callout clay">
+    <p class="h">Common mistake</p>
+    <p>Do not change <code>mcp[cli]==1.x</code> to <code>mcp&gt;=2</code> and deploy the same code. The package installs; the imports, constructor arguments, routes, startup, and identity handling do not.</p>
+  </div>
+
+  <h2><span class="n">2</span>Safe migration protocol</h2>
+  <p class="sec-intro">A staged protocol so beta feedback measures interoperability — not an uncontrolled production upgrade.</p>
+  <ol class="proto">
+    <li><b>Freeze the baseline.</b><span>Pin the working v1 dependency; capture its tool list, schemas, auth behavior, latency, and known clients.</span></li>
+    <li><b>Add regression tests first.</b><span>Cover initialize, <code>tools/list</code>, representative tool calls, invalid input, unauthorized access, startup, shutdown, and concurrent requests.</span></li>
+    <li><b>Create a v2 branch.</b><span>Change imports and construction; move transport settings to the app factory.</span></li>
+    <li><b>Review lifecycle assumptions.</b><span>Keep process-wide pools and caches in lifespan; move per-request acquisition out of it.</span></li>
+    <li><b>Review identity propagation.</b><span>Verify middleware-authenticated identity reaches tools through injected context. Preserve non-JWT API-key paths intentionally.</span></li>
+    <li><b>Deploy staging.</b><span>Separate service or hostname, separate logs, immediate rollback path.</span></li>
+    <li><b>Run interoperability tests.</b><span>Direct clients and gateways against the same tool set; compare schemas, error shapes, headers, and routes.</span></li>
+    <li><b>Canary and cut over.</b><span>Limited traffic to v2, observe, promote only after parity, retain v1 until the window closes.</span></li>
+  </ol>
+
+  <h3>Route &amp; transport checks</h3>
+  <p>Confirm both <code>/mcp</code> and <code>/mcp/</code> behave, with no nested <code>/mcp/mcp</code>. Verify <code>Content-Type</code>, <code>Accept</code>, and the new routing headers (<code>Mcp-Method</code>, <code>Mcp-Name</code>). Exercise stateless mode under concurrency — never assume request state survives. Test the 4&nbsp;MiB body limit. Validate DNS-rebinding / Host protections behind FastAPI, Railway, a proxy, or a gateway.</p>
+
+  <h3>Authentication &amp; governance checks</h3>
+  <p>Reject missing, expired, malformed, wrong-issuer, and wrong-audience tokens. Keep permanent-API-key and OAuth/JWT paths distinct and observable. Pass verified identity from middleware — never trust a caller-provided user ID for shared writes. Enforce scopes at the <em>action boundary</em>, not only in the prompt. Log the tool, actor, tenant, authorization result, downstream action, and recovery — never secrets.</p>
+
+  <h2><span class="n">3</span>Interoperability test card</h2>
+  <p class="sec-intro">For every real workflow. A successful tool call is not enough — the beta should demonstrate safe execution, traceability, and recovery across server boundaries.</p>
+  <table>
+    <thead><tr><th>Area</th><th>Pass evidence</th><th>Failure to watch</th></tr></thead>
+    <tbody>
+      <tr><td>Discovery</td><td>Client initializes; expected server identity and tool list.</td><td>Missing tools, changed names, schema drift.</td></tr>
+      <tr><td>Schema</td><td>Arguments and structured outputs validate consistently.</td><td>Optional/required fields differ across clients.</td></tr>
+      <tr><td>Authentication</td><td>Correct principal, tenant, audience, scopes reach the tool.</td><td>Anonymous fallback or caller-supplied identity trusted.</td></tr>
+      <tr><td>Authorization</td><td>Denied actions fail before any downstream mutation.</td><td>Prompt-level guardrail is the only control.</td></tr>
+      <tr><td>Execution</td><td>Integration layer invokes the business endpoint exactly once.</td><td>Duplicate, partial, or wrong-tenant action.</td></tr>
+      <tr><td>Observability</td><td>One trace links intent, MCP call, approval, API action, result.</td><td>Logs cannot reconstruct what happened.</td></tr>
+      <tr><td>Recovery</td><td>Timeout/retry is idempotent; rollback is defined.</td><td>Retry duplicates a real-world action.</td></tr>
+      <tr><td>Compatibility</td><td>Claude, Codex, Cursor, VS Code, gateways agree on behavior.</td><td>One client silently reads the schema differently.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Recommended server boundaries</h3>
+  <p>Keep <em>context &amp; governance</em> and <em>universal execution</em> as separate MCP responsibilities — clearer permissions, and each server evolves or rolls back independently.</p>
+  <div class="layers">
+    <div class="row"><span class="l">Agent / LLM</span><span class="d">Interpret the request, gather context, propose a plan, request tools.</span></div>
+    <div class="row"><span class="l">Context / governance MCP</span><span class="d">Approved memory, workflow rules, decisions, guardrails, required approvals.</span></div>
+    <div class="row"><span class="l">Execution MCP / gateway</span><span class="d">Governed execution across business apps through one integration layer.</span></div>
+    <div class="row"><span class="l">Business system</span><span class="d">System of record and final source of action state.</span></div>
+  </div>
+  <div class="callout">
+    <p class="h">The question the beta should answer</p>
+    <p>Can we reconstruct <em>who</em> asked for an action, <em>which</em> context and policy allowed it, <em>what</em> the execution layer performed, <em>whether</em> the business system committed it, and <em>how</em> we recovered if any step failed?</p>
+  </div>
+
+  <h2><span class="n">4</span>Release gate</h2>
+  <p class="sec-intro">Do not promote v2 until all are true.</p>
+  <ul class="checks">
+    <li>The SDK is constrained intentionally (v1 pinned, or v2 bounded below the next major).</li>
+    <li>All server imports and constructor arguments match the v2 API.</li>
+    <li>The final mounted MCP route is confirmed from outside the deployment network.</li>
+    <li>Lifespan starts and stops cleanly; shared resources initialize exactly once.</li>
+    <li>Every production tool appears with the expected schema and compatible output.</li>
+    <li>JWT/OAuth and permanent-API-key paths both pass positive and negative tests.</li>
+    <li>Agent, execution layer, and downstream API share a trace/correlation ID.</li>
+    <li>Retries are idempotent or guarded by a deduplication key.</li>
+    <li>A known-good v1 rollback remains available.</li>
+  </ul>
+
+  <div class="refs">
+  <h3>Official references</h3>
+  <p style="font-size:13.5px;color:var(--muted);">
+    Python SDK · <a href="https://github.com/modelcontextprotocol/python-sdk">github.com/modelcontextprotocol/python-sdk</a><br>
+    v2 migration guide · <a href="https://py.sdk.modelcontextprotocol.io/migration/">py.sdk.modelcontextprotocol.io/migration</a><br>
+    Specification (2026-07-28) · <a href="https://modelcontextprotocol.io/specification/2026-07-28">modelcontextprotocol.io/specification/2026-07-28</a><br>
+    <small>Community implementation aid—not an official MCP publication. Confirm against official sources before production use.</small>
+  </p>
+  </div>
+
+</div>
+</body>
+</html>
